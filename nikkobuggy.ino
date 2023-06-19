@@ -1,20 +1,23 @@
-// Copyright 2021 - 2023, Ricardo Quesada
-// SPDX-License-Identifier: Apache 2.0 or LGPL-2.1-or-later
-
-/*
- * This example shows how to use the Controller API.
- *
- * Supported on boards with NINA W10x. In particular these boards:
- *  - Arduino MKR WiFi 1010,
- *  - UNO WiFi Rev.2,
- *  - Nano RP2040 Connect,
- *  - Nano 33 IoT,
- *  - Arduino Arduino MKR Vidor 4000
- */
 #include <Bluepad32.h>
 
 ControllerPtr myControllers[BP32_MAX_CONTROLLERS];
+/*
+const int enA = 9;
+const int in1 = 7;
+const int in2 = 6;
 
+const int enB = 5;
+const int in3 = 3;
+const int in4 = 4;
+
+const int maxMotorPwm = 200;
+
+const int wheelPwm = 280;
+
+const int maxSpeed=5;
+
+int currentSpeed=0;
+*/
 // Arduino setup function. Runs in CPU 1
 void setup() {
   // Initialize serial
@@ -53,6 +56,14 @@ void setup() {
   // Forgetting Bluetooth keys prevents "paired" gamepads to reconnect.
   // But might also fix some connection / re-connection issues.
   BP32.forgetBluetoothKeys();
+/*
+  pinMode(enA,OUTPUT);
+  pinMode(enB,OUTPUT);
+  pinMode(in1,OUTPUT);
+  pinMode(in2,OUTPUT);
+  pinMode(in3,OUTPUT);
+  pinMode(in4,OUTPUT);
+  */
 }
 
 // This callback gets called any time a new gamepad is connected.
@@ -185,34 +196,22 @@ void processGamepad(ControllerPtr gamepad) {
   // Controller.h For all the available functions.
 }
 
-void processMouse(ControllerPtr mouse) {
-  char buf[160];
-  sprintf(buf,
-          "idx=%d, deltaX:%4li, deltaY:%4li, buttons: 0x%04x, misc: 0x%02x, "
-          "scrollWheel: %d, battery=%d",
-          mouse->index(),        // Controller Index
-          mouse->deltaX(),       // Mouse delta X
-          mouse->deltaY(),       // Mouse delta Y
-          mouse->buttons(),      // bitmask of pressed buttons
-          mouse->miscButtons(),  // bitmak of pressed "misc" buttons
-          mouse->scrollWheel(),  // Direction: 1=up, -1=down, 0=no movement
-          mouse->battery()       // 0=Unk, 1=Empty, 255=full
-  );
-  Serial.println(buf);
+/*
+int pwmMotorValue(int speed) {
+  int pwm = 0;
+  int multiplier = maxMotorPwm / maxSpeed;
+  pwm = speed * multiplier;
+  pwm = constrain(pwm, 0 , maxMotorPwm);
+  return pwm;
 }
 
-void processBalanceBoard(ControllerPtr balance) {
-  char buf[160];
-  sprintf(buf,
-          "idx=%d, tl:%4i, tr:%4i, bl: %4i, br: %4i, temperature=%d, "
-          "battery=%d",
-          balance->index(),  // Controller Index
-          balance->topLeft(), balance->topRight(), balance->bottomLeft(),
-          balance->bottomRight(), balance->temperature(),
-          balance->battery()  // 0=Unk, 1=Empty, 255=full
-  );
-  Serial.println(buf);
+void setMotorSpeed(int speed) {
+  digitalWrite(in1,HIGH);
+  digitalWrite(in2,LOW);
+  analogWrite(enA,pwmMotorValue(speed));
+
 }
+*/
 
 // Arduino loop function. Runs in CPU 1
 void loop() {
@@ -230,10 +229,16 @@ void loop() {
     if (myController && myController->isConnected()) {
       if (myController->isGamepad())
         processGamepad(myController);
-      else if (myController->isMouse())
-        processMouse(myController);
-      else if (myController->isBalanceBoard())
-        processBalanceBoard(myController);
+        /*
+        if (myController->throttle() > 0)
+          currentSpeed = maxSpeed;
+        else if (myController->brake() > 0)
+          currentSpeed = 0;
+        else if (currentSpeed > 0)
+          currentSpeed--;
+        
+        setMotorSpeed(currentSpeed);
+        */
     }
   }
   delay(150);
