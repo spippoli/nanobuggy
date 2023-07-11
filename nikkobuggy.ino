@@ -1,7 +1,7 @@
 #include <Bluepad32.h>
 
 ControllerPtr myControllers[BP32_MAX_CONTROLLERS];
-/*
+
 const int enA = 9;
 const int in1 = 7;
 const int in2 = 6;
@@ -17,7 +17,7 @@ const int wheelPwm = 280;
 const int maxSpeed=5;
 
 int currentSpeed=0;
-*/
+
 // Arduino setup function. Runs in CPU 1
 void setup() {
   // Initialize serial
@@ -56,14 +56,16 @@ void setup() {
   // Forgetting Bluetooth keys prevents "paired" gamepads to reconnect.
   // But might also fix some connection / re-connection issues.
   BP32.forgetBluetoothKeys();
-/*
+
   pinMode(enA,OUTPUT);
   pinMode(enB,OUTPUT);
   pinMode(in1,OUTPUT);
   pinMode(in2,OUTPUT);
   pinMode(in3,OUTPUT);
   pinMode(in4,OUTPUT);
-  */
+  
+
+  straight(); 
 }
 
 // This callback gets called any time a new gamepad is connected.
@@ -196,7 +198,7 @@ void processGamepad(ControllerPtr gamepad) {
   // Controller.h For all the available functions.
 }
 
-/*
+
 int pwmMotorValue(int speed) {
   int pwm = 0;
   int multiplier = maxMotorPwm / maxSpeed;
@@ -211,7 +213,27 @@ void setMotorSpeed(int speed) {
   analogWrite(enA,pwmMotorValue(speed));
 
 }
-*/
+
+void turnRight() {
+  analogWrite(enB, wheelPwm);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+  Serial.println("right");
+}
+
+void turnLeft() {
+  analogWrite(enB, wheelPwm);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+    Serial.println("left");
+}
+
+void straight() {
+  analogWrite(enB, wheelPwm);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+    Serial.println("straight");
+}
 
 // Arduino loop function. Runs in CPU 1
 void loop() {
@@ -228,17 +250,23 @@ void loop() {
 
     if (myController && myController->isConnected()) {
       if (myController->isGamepad())
-        processGamepad(myController);
-        /*
+        //processGamepad(myController);
+        
         if (myController->throttle() > 0)
           currentSpeed = maxSpeed;
         else if (myController->brake() > 0)
           currentSpeed = 0;
         else if (currentSpeed > 0)
           currentSpeed--;
-        
         setMotorSpeed(currentSpeed);
-        */
+        
+        if (myController->axisX() > 100 )
+          turnRight();
+        else if (myController->axisX() < -100 )  
+           turnLeft();
+        else
+           straight();       
+
     }
   }
   delay(150);
